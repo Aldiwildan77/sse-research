@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<script>
+  let eventSource;
+
+  // when "Start" button pressed
+  function start() {
+    if (!window.EventSource) {
+      // IE or an old browser
+      alert("The browser doesn't support EventSource.");
+      return;
+    }
+
+    eventSource = new EventSource('digits');
+
+    eventSource.addEventListener('aloha', function (e) {
+      log("Event: aloha sam aldi, data: " + e.data);
+    });
+
+    eventSource.onopen = function (e) {
+      log("Event: on open");
+    };
+
+    eventSource.onerror = function (e) {
+      log("Event: on error");
+      if (this.readyState == EventSource.CONNECTING) {
+        log(`Reconnecting (readyState=${this.readyState})...`);
+      } else {
+        log("Error has occured.");
+      }
+    };
+
+    eventSource.addEventListener('bye', function (e) {
+      log("Event: bye, data: " + e.data);
+    });
+
+    eventSource.onmessage = function (e) {
+      log("Event: message, data: " + e.data);
+    };
+  }
+
+  // when "Stop" button pressed
+  function stop() {
+    eventSource.close();
+    log("eventSource.close()");
+  }
+
+  // when "Reset" button pressed
+  function reset() {
+    eventSource.close();
+    logElem.innerHTML = "";
+    log("event closed, Log cleared.");
+  }
+
+  function log(msg) {
+    logElem.innerHTML += msg + "<br>";
+    document.documentElement.scrollTop = 99999999;
+  }
+</script>
+
+<button onclick="start()">Start</button> Press the "Start" to begin.
+<div id="logElem" style="margin: 6px 0"></div>
+
+<div style="display: flex; flex-direction: column; row-gap: 6px;">
+  <div>
+    <button onclick="stop()">Stop</button> "Stop" to finish.
+  </div>
+  <div>
+    <button onclick="reset()">Reset</button> "Reset" to clear the log.
+  </div>
+</div>
